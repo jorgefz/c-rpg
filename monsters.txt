@@ -1,0 +1,7 @@
+# List of monsters
+# Name; CON; STRN; DEXT; INTL
+Stromt;10;10;10;10
+Hrutt;15;15;15;15
+Grwal;18;18;18;18
+Dremor;22;22;22;22
+Urguntur;30;30;30;30

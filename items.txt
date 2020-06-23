@@ -1,0 +1,7 @@
+# Item List
+# Name; type; price; data
+
+#Weapons
+Bare Handed; m; 0; 4
+Sword; m; 40; 6
+Bow; r; 30; 4
