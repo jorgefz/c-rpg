@@ -1,0 +1,22 @@
+
+
+	HEADERS
+	In order of dependency.
+	Lowest is most independent.
+	Highest depends on those below. 
+
+
+
+"main"		TBD - main game loop
+"location"	TBD - locations & dungeons
+"combat"	combat funtions
+"inv"		inventory functions
+"magic"		TBD
+"items"		item sorting functions
+"init" 		all game structures and initialisation functions
+"utils" 	utility functions, vector
+
+
+	FOLDERS
+	
+	data - txt files with game objects

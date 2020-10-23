@@ -1,0 +1,31 @@
+# Item List
+# ID; Name; type; price; data
+
+# Item types: 'a-' armor, 'w-' weapon, 'c-' consumable, 'm-' ammo
+
+#Weapons
+0001; Naked; w-melee; 0; 1
+0002; Sword; w-melee; 40; 7
+0003; Bow; w-ranged; 30; 5
+
+#Armor
+0004; Leather Helmet; a-head; 30; 3
+0005; Leather Cuirass; a-chest; 70; 7
+0006; Leather Gloves; a-hands; 15; 1
+0007; Leather Boots; a-feet; 35; 4
+
+0008; Iron Helmet; a-head; 40; 5
+0009; Iron Plate; a-chest; 100; 10
+0010; Iron Gauntlets; a-hands; 25; 3
+0011; Iron Boots; a-feet; 45; 6
+
+#Ammo
+0012; Iron Arrow; m-arrow; 2; 4
+
+#Food
+0013; Apple; c-food; 0; 0
+0014; Bread; c-food; 0; 0
+
+#Potions
+0015; Health Potion; c-potion; 7; 8
+

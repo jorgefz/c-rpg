@@ -1,0 +1,31 @@
+
+
+ LOCATIONS
+ 
+	Location types (conceptual)
+		
+		- World Map
+		- Towns (list of buildings and events, custom names)
+		- Interiors (inns, castles, shops, etc)
+		- Dungeons ()
+	
+	Travelling
+		- Once in a town, moving
+		
+		
+		
+	Code
+		- Struct with world map locations
+			> Name
+			> Type (city 'c', town 't', dungeon 'd', etc)
+			> hidden (initially undiscovered or not)
+			> discovered
+			> *ptr (to 
+			
+		- Dungeon Struct
+		
+		- Town struct
+		
+		- Interio struct
+		
+		- Random Event struct

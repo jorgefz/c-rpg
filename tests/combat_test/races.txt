@@ -1,0 +1,5 @@
+# List of in-game races
+#Name;CON;STR;DEX;INT
+Human;1;1;1;1
+Elf;0;0;2;2
+Orc;2;2;0;0
