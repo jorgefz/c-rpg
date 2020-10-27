@@ -1,0 +1,11 @@
+# Location data
+# Allow one whitespace on both sides of strings so it doesn't catch the comma
+# For whitespaces in names, use a dash -, it will be substituted later with a space.
+# ID(int), Name(str), type(int), neighbours(int, ID list whitespace separated)
+0,	London, 	0, 1;2
+1,	Birmingham, 	0, 4;0 
+2,	Bristol, 	0, 3;0
+3,	Exeter, 	0, 2;5
+4,	Glasgow, 	0, 1
+5,	Plymouth, 	0, 3;6
+6,	St.Austell, 	0, 5
