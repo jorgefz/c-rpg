@@ -7,6 +7,19 @@
 #include <math.h>
 #include <time.h>
 
+
+/*
+Sets up correct format identifier for size_t
+(aka long long unsigned int)
+*/
+#ifdef __WIN32
+#define SZ_FMT "I64u"
+#else
+#define SZ_FMT "zu"
+#endif
+
+
+
 /*
 
 
@@ -48,6 +61,10 @@
 
 
 typedef unsigned int uint;
+typedef unsigned long ulong;
+
+/* Allocates memory, terminates the program on fail */
+void * xmalloc(size_t bytes);
 
 /* Returns a random number between 1 and the input value */
 int drand(int max);
@@ -118,12 +135,12 @@ strtoint(int *dest, const char *str);
 
 
 /*
-Converts and array of strings if length 'size' 
+Converts and array of strings of length 'size' 
 into an array of integers.
 Values are stored in memory of input array 'dest'.
 */
 int *
-strtointArr(int *dest, const char **str, size_t size);
+strtointArr(int *dest, char **str, size_t size);
 
 
 
@@ -150,7 +167,7 @@ Given a string and a delimiter,
 it returns the number of tokens in the string.
 */
 size_t
-strtokn(char *str, const char *delim);
+strtokn(const char *str, char delim);
 
 
 
@@ -164,7 +181,7 @@ If the end of the string is reached, a NULL
 pointer is returned.
 */
 char *
-strpar(char *ptr, const char delim);
+strpar(char *ptr, char delim);
 
 
 
@@ -183,7 +200,7 @@ Output:
 	NULL:			if unsuccessful
 */
 char **
-strsplit(char **dest, char *str, const char delim);
+strsplit(char **dest, char *str, char delim);
 
 
 
@@ -272,6 +289,92 @@ Checks whether a file of input path exists.
 Returns path pointer, and NULL on fail.
 */
 char *checkFile(const char* path);
+
+
+
+// ---------------------------------------------
+
+// 			VECTOR
+
+
+typedef struct vectorStruct
+{
+	void *d;
+	size_t size;
+	size_t dtype;
+} vector;
+
+
+
+/*
+Allocates new vector and returns pointer to it
+*/
+vector *vnew(size_t bytes);
+
+
+//		GETTERS
+/*
+Returns the size of the vector
+*/
+size_t vsize(vector *v);
+
+/*
+Returns the memory size of the
+vector members' data type, in bytes
+*/
+size_t vdtype(vector *v);
+
+/* Returns pointer to data array of vector */
+void *vdata(vector *v);
+
+/*
+Returns a pointer to a vector member.
+Must be cast to the appropriate data type.
+e.g.
+	double *var = *(double*) vat(v,0)
+returns a pointer to the first member (index 0)
+of a vector 'v' and casts it to a double.
+*/
+void *vat(vector *v, size_t i);
+
+/*
+Returns the total memory allocated for the vector
+*/
+size_t vmem(vector *v);
+
+
+
+//		SETTERS
+
+
+/* Changes the value of a vector member */
+vector *vset(vector *v, size_t i, void *src);
+
+/*
+Substitutes every member in the vector with
+the input member
+*/
+vector *vfill(vector *v, void *src);
+
+
+
+//		SIZE MANIPULATION
+
+/*
+Inserts a new member into the vector
+at index 'j'.
+*/
+vector *vinsert(vector *v, size_t j, void *new);
+
+/* Removes member 'i' from vector */
+vector *vdelete(vector *v, size_t i);
+
+vector *vresize(vector *v, size_t newsize);
+
+void vfree(vector *v);
+
+/* Converts an array into a vector */
+vector *vtovector(void *arr, size_t elem_num, size_t elem_size);
 
 
 

@@ -7,6 +7,7 @@
 
 #include "utils.h"
 
+
 /*
 	===== Utility Function Definitions =====
 
@@ -421,7 +422,7 @@ GenFromTxt(const char *path, size_t *shape, const size_t maxSize,
 	size_t bytes = lineCount*initToken*sizeof(char*);
 	char **m = malloc(bytes);
 	if(!m){
-		fprintf(stderr, " Error: failed to allocate %zu bytes\n", bytes);
+		fprintf(stderr, " Error: failed to allocate %"SZ_FMT" bytes\n", bytes);
 		return (NULL);
 	}
 
@@ -431,7 +432,7 @@ GenFromTxt(const char *path, size_t *shape, const size_t maxSize,
 		m[i] = malloc(maxSize*sizeof(char));
 		if(!m){
 			allocFail = (int)i;
-			fprintf(stderr, " Error: failed to allocate %zu bytes\n", maxSize*sizeof(char));
+			fprintf(stderr, " Error: failed to allocate %"SZ_FMT" bytes\n", maxSize*sizeof(char));
 			break;
 		}
 	}
@@ -483,6 +484,8 @@ char *checkFile(const char* path)
 
 //			VECTOR
 
+
+
 /*
 Allocates new vector and returns pointer to it
 */
@@ -494,6 +497,7 @@ vector *vnew(size_t bytes)
 	v->d = NULL;
 	v->size = 0;
 	v->dtype = bytes;
+
 	return v;
 }
 
@@ -507,7 +511,6 @@ size_t vsize(vector *v)
 {
 	return v->size;
 }
-
 
 /*
 Returns the memory size of the
@@ -539,6 +542,19 @@ void *vat(vector *v, size_t i)
 		return NULL;
 	void *ptr = v->d + i*v->dtype;
 	return ptr;
+}
+
+
+/*
+Returns the total memory allocated for the vector
+*/
+size_t vmem(vector *v)
+{
+	if(!v)
+		return 0;
+	if(vsize(v)==0)
+		return sizeof(vector); 
+	return sizeof(vector)+vsize(v)*vdtype(v);
 }
 
 
@@ -653,4 +669,16 @@ void vfree(vector *v)
 {
 	free(v->d);
 	free(v);
+}
+
+
+/*
+Converts an array into a vector
+*/
+vector *vtovector(void *arr, size_t elem_num, size_t elem_size)
+{
+	vector *v = vnew(elem_size);
+	vresize(v, elem_num);
+	memcpy(vdata(v), arr, elem_num*elem_size);
+	return v;
 }

@@ -7,10 +7,21 @@
 
 #include "utils.h"
 
+
 /*
 	===== Utility Function Definitions =====
 
 */
+
+void * xmalloc(size_t bytes)
+{
+	void *mem = malloc(bytes);
+	if(!mem){
+		fprintf(stderr, "Memory Allocation Error\n");
+		exit(-1);
+	}
+	return mem;
+}
 
 
 int drand(int max)
@@ -198,7 +209,7 @@ strtoint(int *dest, const char *str)
 }
 
 int *
-strtointArr(int *dest, const char **str, size_t size)
+strtointArr(int *dest, char **str, size_t size)
 {
 	for(size_t i=0; i<size; i++){
 		int *ret = strtoint(&(dest[i]), str[i]);
@@ -244,13 +255,13 @@ strtofltArr(double *dest, const char **str, size_t size)
 
 
 size_t
-strtokn(char *str, const char *delim)
+strtokn(const char *str, char delim)
 {
 	if(!str)
 		return 0;
 	size_t n = 0;
 	for(size_t i=0; i<strlen(str); i++){
-		if(str[i] == *delim)
+		if(str[i] == delim)
 			n++;
 	}
 	return (n+1);
@@ -395,7 +406,7 @@ GenFromTxt(const char *path, size_t *shape, const size_t maxSize,
 	//expected number of tokens
 	size_t tokens[lineCount];
 	for(size_t i=0; i<lineCount; i++){
-		tokens[i] = strtokn(l[i], &delim);
+		tokens[i] = strtokn(l[i], delim);
 	}
 
 	//Compare all tokens to first one
@@ -411,7 +422,7 @@ GenFromTxt(const char *path, size_t *shape, const size_t maxSize,
 	size_t bytes = lineCount*initToken*sizeof(char*);
 	char **m = malloc(bytes);
 	if(!m){
-		fprintf(stderr, " Error: failed to allocate %Iu bytes\n", bytes);
+		fprintf(stderr, " Error: failed to allocate %"SZ_FMT" bytes\n", bytes);
 		return (NULL);
 	}
 
@@ -421,7 +432,7 @@ GenFromTxt(const char *path, size_t *shape, const size_t maxSize,
 		m[i] = malloc(maxSize*sizeof(char));
 		if(!m){
 			allocFail = (int)i;
-			fprintf(stderr, " Error: failed to allocate %Iu bytes\n", maxSize*sizeof(char));
+			fprintf(stderr, " Error: failed to allocate %"SZ_FMT" bytes\n", maxSize*sizeof(char));
 			break;
 		}
 	}
@@ -465,4 +476,209 @@ char *checkFile(const char* path)
     if(!fdata)
     	return (NULL);
     return (char *)path;
+}
+
+
+
+// --------------------------------------------------
+
+//			VECTOR
+
+
+
+/*
+Allocates new vector and returns pointer to it
+*/
+vector *vnew(size_t bytes)
+{
+	vector *v = malloc(sizeof(vector));
+	if(!v)
+		return NULL;
+	v->d = NULL;
+	v->size = 0;
+	v->dtype = bytes;
+
+	return v;
+}
+
+
+//		GETTERS
+
+/*
+Returns the size of the vector
+*/
+size_t vsize(vector *v)
+{
+	return v->size;
+}
+
+/*
+Returns the memory size of the
+vector members' data type, in bytes
+*/
+size_t vdtype(vector *v)
+{
+	return v->dtype;
+}
+
+/* Returns pointer to data array of vector */
+void *vdata(vector *v)
+{
+	return v->d;
+}
+
+
+/*
+Returns a pointer to a vector member.
+Must be cast to the appropriate data type.
+e.g.
+	double *var = *(double*) vat(v,0)
+returns a pointer to the first member (index 0)
+of a vector 'v' and casts it to a double.
+*/
+void *vat(vector *v, size_t i)
+{
+	if(i >= vsize(v))
+		return NULL;
+	void *ptr = v->d + i*v->dtype;
+	return ptr;
+}
+
+
+/*
+Returns the total memory allocated for the vector
+*/
+size_t vmem(vector *v)
+{
+	if(!v)
+		return 0;
+	if(vsize(v)==0)
+		return sizeof(vector); 
+	return sizeof(vector)+vsize(v)*vdtype(v);
+}
+
+
+//		SETTERS
+
+/*
+Changes the value of a vector member
+*/
+vector *vset(vector *v, size_t i, void *src)
+{
+	if(i >= vsize(v))
+		return NULL;
+	void *dest = vat(v, i);
+	memcpy(dest, src, v->dtype);
+	return v;
+}
+
+/*
+Substitutes every member in the vector with
+the input member
+*/
+vector *vfill(vector *v, void *src)
+{
+	for(size_t i=0; i<vsize(v); i++)
+		vset(v, i, src);
+	return v;
+}
+
+
+
+//		SIZE MANIPULATION
+
+/*
+Inserts a new member into the vector
+at index 'j'.
+*/
+vector *vinsert(vector *v, size_t j, void *new)
+{
+	if(j > vsize(v))
+		return NULL;
+
+	//Reallocate with one extra space
+	v->d = realloc(v->d, v->dtype*(v->size+1) );
+	if(v->d == NULL)
+		return NULL;
+	v->size++;
+
+	//Shift values forward from insert index
+	for(size_t i=vsize(v)-1; i>j; i--)
+	{
+		void *dest = vat(v, i);
+		void *src = vat(v, i-1);
+		memcpy(dest, src, v->dtype);
+	}
+
+	//Copy new member data from input pointer
+	void *dest = vat(v, j);
+	memcpy(dest, new, v->dtype);
+
+	return v;
+}
+
+/*
+Deletes member 'i' from vector
+*/
+vector *vdelete(vector *v, size_t i)
+{
+	if(i >= vsize(v))
+		return NULL;
+
+	//If there is only one member to delete, free instead
+	if(v->size == 1){
+		free(v->d);
+		v->size--;
+		return v;
+	}
+
+	//Shift memory back over deleted member
+	for(size_t j=i; j<vsize(v)-1; j++){
+		void *src = vat(v, j+1);
+		void *dest = vat(v, j);
+		memcpy(dest, src, v->dtype);
+	}
+
+	//Reallocate to reduce memory usage	
+	v->d = realloc(v->d, v->dtype*(v->size-1) );	
+	v->size--;
+	if(!v->d)
+		return NULL;
+
+	return v;
+}
+
+/*
+Changes the size of a vector directly.
+Increasing the size will generate new empty members,
+and reducing it will erase extra members.
+*/
+vector *vresize(vector *v, size_t newsize)
+{
+	v->d = realloc(v->d, sizeof(v->dtype)*newsize);
+	if(v->d == NULL)
+		return NULL;
+	v->size = newsize;
+	return v;
+}
+
+/*
+Frees the vector
+*/
+void vfree(vector *v)
+{
+	free(v->d);
+	free(v);
+}
+
+
+/*
+Converts an array into a vector
+*/
+vector *vtovector(void *arr, size_t elem_num, size_t elem_size)
+{
+	vector *v = vnew(elem_size);
+	vresize(v, elem_num);
+	memcpy(vdata(v), arr, elem_num*elem_size);
+	return v;
 }

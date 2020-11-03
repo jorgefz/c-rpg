@@ -7,6 +7,19 @@
 #include <math.h>
 #include <time.h>
 
+
+/*
+Sets up correct format identifier for size_t
+(aka long long unsigned int)
+*/
+#ifdef __WIN32
+#define SZ_FMT "I64u"
+#else
+#define SZ_FMT "zu"
+#endif
+
+
+
 /*
 
 
@@ -48,6 +61,7 @@
 
 
 typedef unsigned int uint;
+typedef unsigned long ulong;
 
 /* Allocates memory, terminates the program on fail */
 void * xmalloc(size_t bytes);
@@ -167,7 +181,7 @@ If the end of the string is reached, a NULL
 pointer is returned.
 */
 char *
-strpar(char *ptr, const char delim);
+strpar(char *ptr, char delim);
 
 
 
@@ -186,7 +200,7 @@ Output:
 	NULL:			if unsuccessful
 */
 char **
-strsplit(char **dest, char *str, const char delim);
+strsplit(char **dest, char *str, char delim);
 
 
 
@@ -323,6 +337,11 @@ of a vector 'v' and casts it to a double.
 */
 void *vat(vector *v, size_t i);
 
+/*
+Returns the total memory allocated for the vector
+*/
+size_t vmem(vector *v);
+
 
 
 //		SETTERS
@@ -353,6 +372,9 @@ vector *vdelete(vector *v, size_t i);
 vector *vresize(vector *v, size_t newsize);
 
 void vfree(vector *v);
+
+/* Converts an array into a vector */
+vector *vtovector(void *arr, size_t elem_num, size_t elem_size);
 
 
 

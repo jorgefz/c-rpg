@@ -1,8 +1,8 @@
 # List of items, semicolon separated
-# ID; Name; Price; Type
+# ID; Name; Price; Type; Equip Type
 
 # Weapons
-0001;Sword;50
+0001;Sword;50; 
 0002;Axe;60
 0003;Dagger;20
 0004;Bow;40
