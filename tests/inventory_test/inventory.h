@@ -10,12 +10,16 @@
 
 
 
+#define MAX_STR_NAME 100
+
+
 typedef struct itemStruct{
-	int ID;
-	char name[100];
+	// Unique for each item
+	int id;
+	char name[MAX_STR_NAME];
 	int price;
-	/* Type: weapon, armor, etc */
-	char type[10];
+	/* Item type as defined by enum */
+	int type;
 	/* Equipt type */
 	int eqpType;
 
@@ -25,10 +29,18 @@ typedef struct itemStruct{
 
 
 
+typedef enum ItemTypeEnum{
+	IT_WEAPON,
+	IT_ARMOR,
+
+} ItemType;
+
+
+
 // CHARACTERS
 
 typedef enum EquipSlotEnum{
-	EQP_HAND1,
+	EQP_HAND1=0,
 	EQP_HAND2,
 	EQP_HEAD,
 	EQP_CHEST,
@@ -38,14 +50,14 @@ typedef enum EquipSlotEnum{
 	EQP_NECKL,
 	EQP_OTHER,
 	EQP_NUM,	// Number of equip enum values
-	EQP_NONE
+	EQP_NONE	// Non-equippable
 } EquipSlot;
 
 
 typedef struct charStruct{
 	int id;
-	char name[100];
-	char race[100];
+	char name[MAX_STR_NAME];
+	char race[MAX_STR_NAME];
 	//Active Stats
 	int HP;
 	int maxHP;
@@ -64,7 +76,7 @@ typedef struct charStruct{
 	int nextLvlExp;
 	int gold;
 	//Equipment Slots
-	Item *eqpSlots[8];
+	Item *eqpSlots[EQP_NUM];
 	// Check enum above
 
 	//Item Inventory
@@ -76,70 +88,43 @@ typedef struct charStruct{
 
 
 
-/*
-item type
-	'melee' 	: swords, axes, etc
-	'ranged'	: bows, throwing knives, etc
-	'ammo'		: arrows
-	'cons'		: consumables, food, potions, etc
-	'a-head'	: head armor
-	'a-chest'	:
-	'a-hands'	:
-	'a-feet'	:
-	'a-ring'	:
-*/
-
 
 // GLOBAL VARIABLES
-char *eqpSlotCodes[8];
+const char *eqpSlotNames[EQP_NONE+1];
 
 
-char *eqpSlotNames[8];
 
-size_t eqpSlotNum;
+// FUNCTIONS
+/* Deep comparison of item structs */
+size_t item_cmp(Item *a, Item *b);
 
-/*
-Compares two item structs
-and returns 0 if identical.
-*/
-size_t cmpItem(Item *a, Item *b);
+/* Counts occurrences of an item in inventory */
+size_t inv_count_item(vector *inv, Item *item);
 
-	
-/*
-Searches for instances of a given item in
-a vector inventory from a given index.
-Returns the index of the first instance if found,
-and the size of the inventory otherwise.
-*/
-size_t whereInv(vector *inv, Item *item, size_t begin);
+/* Returns index of first occurrence of item in inventory */
+size_t inv_where(vector *inv, Item *item, size_t begin);
 
+/* Removes all occurrences of an item from inventory */
+vector *inv_rmall_item(vector *inv, Item *item);
 
-/*
-Adds a new item to the inventory, and increases its size by 1.
-If there's no more space in inventory, NULL is returned. 
-*/
-vector * addToInv(vector *inv, Item *item);
+/* Initialize inventory */
+vector *inv_init();
 
-/*
-Given an input item, it searches for instances of it on the inventory.
-The first instance is removed and the inventory size
-is reduced by one.
-If the input index is already empty, NULL is returned. 
-*/
-vector * delFromInv(vector *inv, Item *item);
+/* Adds an item to inventory */
+vector *inv_add(vector *inv, Item *item);
 
+/* Removes item from inventory */
+vector *inv_remove(vector *inv, Item *item);
 
-void printInvItems(vector *inv);
+void inv_print_list(vector *inv);
 
-void printEquippedItems(Charac *player);
+void inv_print_eqp(Charac *player);
 
-void printPlayerInv(Charac *player);
+void inv_print(Charac *player);
 
-Charac *storeEquipItem(Charac *player, size_t slotId);
+Charac *inv_unequip(Charac *player, size_t slotId);
 
-Charac *equipItem(Charac *player, size_t itemId);
-
-void menuInventory(Charac *player);
+Charac *inv_equip(Charac *player, size_t itemId);
 
 
 #endif
