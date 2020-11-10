@@ -44,6 +44,7 @@ Error log_init()
 	LOG = fopen(LOGFILE, "a");
 	if(!LOG){
 		fprintf(stderr, " Error: unable to open logging file at %s\n", LOGFILE);
+		fprintf(stderr, " Please, make sure you execute the game from the bin folder\n");
 		return FILE_ERROR;
 	}
 
@@ -85,7 +86,7 @@ Error game_init()
 	CHARACS = vnew(sizeof(Charac));
 
 	if(!ITEMS || !PLAYERS || !CHARACS){
-		log_msg(" Error: failed to allocate memory\n");
+		log_msg(" Error: failed to allocate memory for game assets\n");
 		return MEM_ALLOC_ERROR;
 	}
 
@@ -209,69 +210,6 @@ quit:
 	return err;
 }
 
-// Read Character Data from TXT
-/*
-Error charac_read_data(vector *v, const char *path)
-{
-	
-	//Number of expected data columns in data, defined by relevant struct
-	size_t EXP_COLS = 6;
-	//Array stores number of rows and columns
-	size_t shape[2];
-
-	//Get data from txt
-	char **raceData = GenFromTxt(path, &shape[0], STR_LINE_MAX, ';', '#');
-	if(!raceData){
-		log_msg(" Error: could not read %s\n", CHARACS_TXT);
-		return FILE_ERROR;
-	}
-
-	//Check expected columns
-	if(shape[1] != EXP_COLS){
-		log_msg(" Error: wrong formatting in %s\n", CHARACS_TXT);
-		return FILE_ERROR;
-	}
-
-	//Save txt data in item vector
-	for(size_t i=0; i<shape[0]; i++)
-	{
-
-		//Retrieve in order:
-		// Name (string), type (int), CON, STR, DEX, INT (ints)
-		Charac temp;
-
-		//Get ID
-		if(!strtoint(&temp.id, raceData[i*shape[1]])){
-			log_msg(" Error: wrong formatting in %s\n", CHARACS_TXT);
-			return FILE_ERROR;
-		}
-
-		//Get name
-		strcpy(temp.name, strstripw(raceData[i*shape[1]+1]));
-
-		int *data[] = {&temp.type, &temp.cons, &temp.strn, &temp.dext, &temp.intl};
-		for(int i=0; i<5; i++)
-		{
-			if(!strtoint(data[i], raceData[i*shape[1] + i + 2])){
-				log_msg(" Error: wrong formatting in %s\n", CHARACS_TXT);
-				return FILE_ERROR;
-			}
-		}
-
-		//Save new item in vector
-		vinsert(v, vsize(v), &temp);
-	}
-
-	//Free GenFromTxt return array
-	for(size_t i=0; i<shape[0]*shape[1]; i++){
-		free(raceData[i]);
-	}
-	free(raceData);
-	log_msg("Finished reading character data (%"SZ_FMT" bytes)\n", vmem(CHARACS));
-	return NO_ERROR;
-}
-*/
-
 
 // Wrap function to read all data
 Error game_read_data()
@@ -279,10 +217,10 @@ Error game_read_data()
 	Error err = NO_ERROR;
 
 	// Items
-	err = item_read_data(ITEMS, ITEMS_TXT);
+	err = item_read_data();
 	check_quit;
 
-	err = charac_read_data(CHARACS, CHARACS_TXT);
+	err = charac_read_data();
 	check_quit;
 
 	//Characs
@@ -334,16 +272,67 @@ vector *charac_get_races()
 }
 
 
+/*
+Retrieves a character that has the input name.
+*/
+Charac *charac_search_name(const char *name)
+{
+	for(size_t i=0; i<vsize(CHARACS); i++)
+	{
+		Charac *cur = vat(CHARACS, i);
+		if( strcmp(cur->name, name) == 0 ){
+			return cur;
+		}
+	}
+	return NULL;
+}
+
+/*
+Retrieves a character of input id.
+*/
+Charac *charac_search_id(int id)
+{
+	for(size_t i=0; i<vsize(CHARACS); i++)
+	{
+		Charac *cur = vat(CHARACS, i);
+		if( cur->id == id ){
+			return cur;
+		}
+	}
+	return NULL;
+}
+
+
 
 
 //	ITEMS
-// Search by name, returns first instance,
-// and NULL otherwise
-Item *item_search_name(vector *items, const char *lookup_name)
+
+/*
+Retrieves a vector list of items of input type.
+*/
+vector *item_search_type(int intype)
 {
-	for(size_t i=0; i<vsize(items); i++)
+	vector *type_list = vnew(sizeof(Item*));
+	for(size_t i=0; i<vsize(ITEMS); i++)
 	{
-		Item *temp = vat(items, i);
+		Item *cur = vat(ITEMS, i);
+		if(cur->type == intype){
+			vinsert(type_list, 0, &cur); 
+		}
+	}
+	return type_list;
+}
+
+
+
+/*
+Returns the first item with the input name.
+*/
+Item *item_search_name(const char *lookup_name)
+{
+	for(size_t i=0; i<vsize(ITEMS); i++)
+	{
+		Item *temp = vat(ITEMS, i);
 		if (strcmp(temp->name, lookup_name) == 0){
 			return temp;
 		}
@@ -351,13 +340,15 @@ Item *item_search_name(vector *items, const char *lookup_name)
 	return NULL;
 }
 
-// Search by ID, returns first instance,
-// and NULL otherwise
-Item *item_search_id(vector *items, int lookup_id)
+
+/*
+Returns an item with the input id.
+*/
+Item *item_search_id(int lookup_id)
 {
-	for(size_t i=0; i<vsize(items); i++)
+	for(size_t i=0; i<vsize(ITEMS); i++)
 	{
-		Item *temp = vat(items, i);
+		Item *temp = vat(ITEMS, i);
 		if (temp->id == lookup_id){
 			return temp;
 		}

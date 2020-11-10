@@ -33,6 +33,17 @@ int main()
 		printf("%s\n", cur->name);
 	}
 
+	//retrieve races
+	vector *races = charac_get_races();
+	printf("\n\n --- Races:\n");
+	for(size_t i=0; i<vsize(races); i++)
+	{
+		Charac *cur = *(Charac**)vat(races, i);
+		printf("%s\n", cur->name);
+	}
+	vfree(races);
+
+
 	game_free();
 
 	//getchar();

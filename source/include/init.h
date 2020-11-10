@@ -8,12 +8,35 @@
 	Contains basic game structures and functions,
 	as well as game initialization and freeing:
 
-	Item and character structures.
+	init.h
+		Error enum
 
+		Item struct
+		Equip Slot struct
+		Item type enum
 
-	TO-DO:
-		- Optimize file reading functions
-		- 
+		Charac struct
+		Charac type enum
+
+	init.c
+		log_msg
+		log_init
+
+		game_init
+		game_free
+
+		item_read_data
+		charac_read_data
+		game_read_data
+
+		charac_search_type
+		charac_get_races
+		charac_search_name
+		charac_search_id
+	
+		item_search_type
+		item_search_name
+		item_search_id
 
 */
 
@@ -206,15 +229,16 @@ Error game_read_data();
 //		INDEXING
 
 //	=== Items
-Item *item_search_name(vector *v, const char *lookup_name);
-Item *item_search_id(vector *v, int lookup_id);
+vector *item_search_type(int intype);
+Item *item_search_name(const char *lookup_name);
+Item *item_search_id(int lookup_id);
 
 
 //	=== Charac
 vector *charac_search_type(int intype);
 vector *charac_get_races();
-// characSearchName
-// characSearchId
+Charac *charac_search_name(const char *name);
+Charac *charac_search_id(int id);
 
 
 #endif
