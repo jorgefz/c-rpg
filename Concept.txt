@@ -5,7 +5,7 @@
 	=== ARENA ===
 	v1
 	-> Stats, Monsters, Combat system
-		An Arena game where player can enter an arena to fight
+		An Arena game where player can enter to fight
 		monsters, gain experience, and get gold.
 		Different levels corresponding to different monsters,
 		of higher and higher difficulty.

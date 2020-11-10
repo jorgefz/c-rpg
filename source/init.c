@@ -1,6 +1,4 @@
 
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -33,7 +31,8 @@ const char *LOGFILE = "../data/logs/log.txt";
 void log_msg(char *msg, ...){
 	va_list args;
     va_start(args, msg);
-    vfprintf(LOG, msg, args);
+    int r = vfprintf(LOG, msg, args);
+    fflush(LOG);
     va_end(args);
 }
 
@@ -41,7 +40,7 @@ void log_msg(char *msg, ...){
 // Opens log file
 Error log_init()
 {
-	LOG = fopen(LOGFILE, "a");
+	LOG = fopen(LOGFILE, "w");
 	if(!LOG){
 		fprintf(stderr, " Error: unable to open logging file at %s\n", LOGFILE);
 		fprintf(stderr, " Please, make sure you execute the game from the bin folder\n");
@@ -101,7 +100,7 @@ void game_free()
 	//Free vectors
 	vfree(ITEMS);
 	vfree(PLAYERS);
-	vfree(CHARACS);
+	charac_free();
 
 	log_msg("Closing game...\n");
 	fclose(LOG);
@@ -302,6 +301,19 @@ Charac *charac_search_id(int id)
 	return NULL;
 }
 
+/*
+Frees the memory of all characters data
+*/
+void charac_free()
+{
+	// Freeing character inventories
+	for(size_t i=0; i<vsize(CHARACS); i++)
+	{
+		Charac *cur = vat(CHARACS, i);
+		vfree(cur->inv);
+	}
+	vfree(CHARACS);
+}
 
 
 

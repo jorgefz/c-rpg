@@ -108,6 +108,12 @@ typedef enum EquipSlotEnum{
 	EQP_NUM,		// Number of equip enum values
 } EquipSlot;
 
+/*
+Number of usable equipment slots in player inventory.
+Ignores EQP_NONE.
+*/
+#define EQP_SLOTS EQP_NUM-1
+
 
 
 typedef struct itemStruct{
@@ -158,7 +164,7 @@ typedef struct characStruct{
 	int nextLvlExp;
 	int gold;
 	//Equipment Slots
-	Item *eqpSlots[EQP_NUM];
+	Item *eqp_slots[EQP_SLOTS];
 	//Item Inventory
 	vector *inv;
 	//Magic
@@ -196,7 +202,6 @@ extern const char *SAVE_DIR;
 /* ============= FUNCTION DECLARATIONS ============ */
 
 //		INITIALIZATION
-
 /* Logs game messages onto file */
 void log_msg(char *msg, ...);
 
@@ -211,34 +216,23 @@ Error game_init();
 void game_free();
 
 
-//		READ TXT
-
-//	Items
-//Error item_read_data(vector *v, const char *path);
+//		DATA READING
 Error item_read_data();
-// Races
 Error charac_read_data();
-
-//	Charac
-// characReadTxt
-
-// General
 Error game_read_data();
 
 
 //		INDEXING
-
 //	=== Items
 vector *item_search_type(int intype);
 Item *item_search_name(const char *lookup_name);
 Item *item_search_id(int lookup_id);
-
-
 //	=== Charac
 vector *charac_search_type(int intype);
 vector *charac_get_races();
 Charac *charac_search_name(const char *name);
 Charac *charac_search_id(int id);
+void charac_free();
 
 
 #endif

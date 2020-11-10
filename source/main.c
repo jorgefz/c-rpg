@@ -4,6 +4,7 @@
 
 #include "include/utils.h"
 #include "include/init.h"
+#include "include/inventory.h"
 
 
 
@@ -43,10 +44,72 @@ int main()
 	}
 	vfree(races);
 
+	getchar();
+
+
+
+
+
+	// Inventory tests
+	// Creating player
+	Charac player = {.name="Player One"};
+	player.inv = inv_init();
+	if(!player.inv){
+		printf("DEBUG: failed to initialize inventory\n");
+		return 1;
+	}
+	for(size_t i=0; i<EQP_NUM-1; i++)
+	{
+		player.eqp_slots[i] = NULL;
+	}
+
+	printf("Player inventory should be empty...\n");
+	inv_print(&player);
+
+	getchar();
+	printf("\n\n\n");
+
+	inv_add(player.inv, vat(ITEMS,0));
+	inv_add(player.inv, vat(ITEMS,1));
+	inv_add(player.inv, vat(ITEMS,2));
+	inv_add(player.inv, vat(ITEMS,3));
+	inv_print(&player);
+
+	getchar();
+	printf("\n\n\n");
+
+	inv_remove(player.inv, vat(ITEMS,2));
+	inv_print(&player);
+
+	getchar();
+	printf("\n\n\n");
+
+	inv_equip(&player, inv_where(player.inv, vat(ITEMS,3), 0) );
+	inv_equip(&player, inv_where(player.inv, vat(ITEMS,0), 0) );
+	inv_print(&player);
+
+	getchar();
+	printf("\n\n\n");
+	inv_add(player.inv, vat(ITEMS,8));
+	inv_add(player.inv, vat(ITEMS,9));
+	inv_add(player.inv, vat(ITEMS,10));
+	inv_add(player.inv, vat(ITEMS,11));
+
+	inv_equip(&player, inv_where(player.inv, vat(ITEMS,8), 0) );
+	inv_equip(&player, inv_where(player.inv, vat(ITEMS,9), 0) );
+	inv_equip(&player, inv_where(player.inv, vat(ITEMS,10), 0) );
+	inv_equip(&player, inv_where(player.inv, vat(ITEMS,11), 0) );
+	inv_print(&player);
+	
+	getchar();
+
+
+	vfree(player.inv);
+
+
+
 
 	game_free();
-
-	//getchar();
 
 quit:
 	return err;
