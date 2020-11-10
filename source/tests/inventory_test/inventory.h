@@ -6,11 +6,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "utils.h"
-
-
+#include "../../include/utils.h"
 
 #define MAX_STR_NAME 100
+
 
 
 typedef struct itemStruct{
@@ -21,8 +20,7 @@ typedef struct itemStruct{
 	/* Item type as defined by enum */
 	int type;
 	/* Equipt type */
-	int eqpType;
-
+	int eqp_type;
 	/* Generic data (e.g. damage if weapon) */
 	int data;
 } Item;
@@ -87,10 +85,9 @@ typedef struct charStruct{
 
 
 
-
-
-// GLOBAL VARIABLES
 const char *eqpSlotNames[EQP_NONE+1];
+
+
 
 
 

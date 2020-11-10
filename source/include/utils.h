@@ -27,10 +27,19 @@ Sets up correct format identifier for size_t
 
 	drand - return random integer between 1 and max.
 	rolld20 - return random integer between 1 and 20.
+	rolld20 - return random integer between 1 and 6.
+	clear - prints 10 newline characters.
+
+	intmin - returns minimum value from an integer array
+	intmax - returns maximum value from an integer array
+	intimin - returns index of minimum of an integer array
+	intimax - returns index of maximum of an integer array
 	
 	strslc - slices string at tho points
+	strstripw - removes whitespaces from a string
+	strstripw_lr - trims trailing whitespaces from a string.
 	getstr - get input string from user
-	getAChar - asks user for a character
+	getAChar - asks user for a single character
 	strtoint - convert string into integer
 	strtointArr - convert strings into integer array
 	strtoflt -  convert string to float
@@ -104,10 +113,17 @@ char *
 strslc(char *s, size_t i, size_t j);
 
 /*
-Remove spaces from a string
+Remove all whitespaces from a string
 */
 char *
-strNoSpaces(char *str);
+strstripw(char *str);
+
+/*
+Trims trailing whitespaces from
+both sides of a string,
+leaving those in the middle untouched.
+*/
+char *strstripw_lr(char *str);
 
 
 /*

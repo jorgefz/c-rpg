@@ -4,7 +4,7 @@
 #include <time.h>
 #include <ctype.h>
 
-#include "utils.h"
+#include "../../include/utils.h"
 
 
 /*
@@ -44,8 +44,11 @@
 // leaving interior whitespaces untouched.
 char *strstrip_lr(char *str)
 {
+	char buff[strlen(str)+1];
+	strcpy(buff, str);
+
 	// Remove left whitespaces
-	char *left = str;
+	char *left = buff;
 	while( isspace(*left) )
 	{
 		left++;
@@ -54,13 +57,14 @@ char *strstrip_lr(char *str)
 		return left;
 	}
 	// Remove right whitespaces
-	char *right = str + strlen(str) - 1;
+	char *right = buff + strlen(buff) - 1;
 	while(isspace(*right)){
 		right--;
 	}
 	*(right+1) = '\0';
 
-	return left;
+	strcpy(str, buff);
+	return str;
 }
 
 

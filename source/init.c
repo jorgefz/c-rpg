@@ -3,63 +3,107 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
+#include <time.h>
 
-#include "utils.h"
-#include "init.h"
+#include "include/utils.h"
+#include "include/init.h"
 
 
+// 		GLOBAL VARIABLES
+
+// Current number of players in team
+int num_players = 1;
+
+
+// Data reading directories
+const char *ITEMS_TXT = "../data/items.txt";
+const char *CHARACS_TXT = "../data/characs.txt";
+// Save game location
+const char *SAVE_DIR = "../data/saves/";
+// Location to which log game processes
+const char *LOGFILE = "../data/logs/log.txt";
 
 
 
 
 //		INITIALIZATION
 
-/* Initalises and allocates game objects */
-GameData *initGame()
+// Writes to log file
+void log_msg(char *msg, ...){
+	va_list args;
+    va_start(args, msg);
+    vfprintf(LOG, msg, args);
+    va_end(args);
+}
+
+
+// Opens log file
+Error log_init()
 {
-	// ALLOCATE STRUCTURE VECTORS
-	//Init items
-	vector *items = vnew(sizeof(Item));
-
-	//Init player
-	vector *players = vnew(sizeof(Charac));
-
-	//Init characters
-	vector *npc = vnew(sizeof(Charac));
-
-	//Init races
-	vector *races = vnew(sizeof(Charac));
-
-	//Init game data
-	GameData *gd = malloc(sizeof(GameData));
-	if(!gd){
-		fprintf(stderr, "Fatal Error: unable to allocate memory\n");
-		exit(-1);
+	LOG = fopen(LOGFILE, "a");
+	if(!LOG){
+		fprintf(stderr, " Error: unable to open logging file at %s\n", LOGFILE);
+		return FILE_ERROR;
 	}
-	gd->items = items;
-	gd->npc = npc;
-	gd->players = players;
 
-	// DEFINE VARIABLES
-	gd->maxPlayers = 6;
+	// Log current time
+	time_t rawtime;
+    struct tm * timeinfo;
+    time( &rawtime );
+    timeinfo = localtime( &rawtime );
 
-	size_t bytes = sizeof(vector)*3 + sizeof(GameData);
-	printf("Allocated %Iu bytes\n", bytes);
+	log_msg("\n\n[NEW GAME INSTANCE] (%d/%d/%d, %d:%d)\n",
+						timeinfo->tm_mday,
+						timeinfo->tm_mon + 1,
+						timeinfo->tm_year + 1900,
+						timeinfo->tm_hour,
+						timeinfo->tm_min);
 
-	return gd;
+	return NO_ERROR;
+}
+
+
+
+
+
+
+/* Initalises and allocates game objects */
+Error game_init()
+{
+	Error err = NO_ERROR;
+
+	// Begin logging
+	err = log_init();
+	check_quit;
+
+	// ALLOCATE STRUCTURE VECTORS
+	ITEMS = vnew(sizeof(Item));
+
+	PLAYERS = vnew(sizeof(Charac));
+
+	CHARACS = vnew(sizeof(Charac));
+
+	if(!ITEMS || !PLAYERS || !CHARACS){
+		log_msg(" Error: failed to allocate memory\n");
+		return MEM_ALLOC_ERROR;
+	}
+
+quit:
+	return err;
 }
 
 
 /* Frees every game object */
-void freeGame(GameData *gd)
+void game_free()
 {
 	//Free vectors
-	vfree(gd->items);
-	vfree(gd->races);
-	vfree(gd->players);
-	vfree(gd->npc);
+	vfree(ITEMS);
+	vfree(PLAYERS);
+	vfree(CHARACS);
 
-	free(gd);
+	log_msg("Closing game...\n");
+	fclose(LOG);
 }
 
 
@@ -68,177 +112,184 @@ void freeGame(GameData *gd)
 //		READ DATA FROM TXT
 //______________________________________________
 
-
-// Read Item Data from TXT
-vector *itemReadTxt(vector *v, const char *path)
+Error item_read_data()
 {
+	Error err = NO_ERROR;
+	char line[STR_LINE_MAX];
+	int line_counter = 0;
 	
-	//Number of expected data columns in data, defined by Item struct
-	size_t EXP_COLS = 5;
-	//Array stores number of rows and columns
-	size_t shape[2];
-	//Max size of each line in characters
-	size_t maxSize = 50;
-
-	//Get data from txt
-	char **itemData = GenFromTxt(path, &shape[0], maxSize, ';', '#');
-	if(!itemData){
-		fprintf(stderr, " Error: could not read items.txt\n");
-		exit(-1);
+	FILE *item_data = fopen(ITEMS_TXT, "r");
+	if(!item_data){
+		log_msg(" Error: could not open %s\n", ITEMS_TXT);
+		return FILE_ERROR;
 	}
 
-	//Check expected columns
-	if(shape[1] != EXP_COLS){
-		fprintf(stderr, " Error: wrong formatting in items.txt\n");
-		exit(-1);
+	while(fgets(line, STR_LINE_MAX-1, item_data) != NULL)
+	{
+		line_counter++;
+		// Skip comments and empty lines
+		if(line[0] == '#' || line[0] == '\n'){
+			continue;
+		}
+		
+		Item new;
+		/*
+		%[^;] reads everything until it finds a semicolon,
+		avoding the problems sscanf has when reading
+		strings with whitespaces.
+		*/
+		int read_num = sscanf(line, "%d;%[^;];%d;%d;%d;%d\n", 
+						&new.id, new.name,
+						&new.type, &new.eqp_type,
+						&new.price, &new.data);
+
+		if(read_num != ITEM_DATA_COLS){
+			err = FILE_ERROR;
+			log_msg(" Error reading %s (line %d)\n", ITEMS_TXT, line_counter);
+			goto quit;
+		}
+		// Remove whitespaces from left and right of string name
+		strstripw_lr(new.name);
+		// Add to global items vector
+		vinsert(ITEMS, vsize(ITEMS), &new);
 	}
 
-	//Save txt data in item vector
-	for(size_t i=0; i<shape[0]; i++)
-	{	
-		//Slice name if too long
-		if(strlen(itemData[i*shape[1]]+1) > 50)
-			strslc(itemData[i*shape[1]+1], 0, 50);
-
-		//Retrieve in order:
-		// ID (int), name (string), type (string), price (int)
-		Item temp;
-
-		//Get ID
-		if(!strtoint(&temp.ID, itemData[i*shape[1]])){
-			fprintf(stderr, " Error: wrong formatting in items.txt\n");
-			exit(-1);
-		}
-
-		//Get name
-		strcpy(temp.name, strNoSpaces(itemData[i*shape[1] + 1]));
-
-		//Get type
-		strcpy(temp.type, strNoSpaces(itemData[i*shape[1] + 2]) );
-
-		//Get price
-		if(!strtoint(&temp.price, itemData[i*shape[1] + 3])){
-			fprintf(stderr, " Error: wrong formatting in items.txt\n");
-			exit(-1);
-		}
-
-		//Get data
-		if(!strtoint(&temp.data, itemData[i*shape[1] + 4])){
-			fprintf(stderr, " Error: wrong formatting in items.txt\n");
-			exit(-1);
-		}
-
-		//Save new item in vector
-		vinsert(v, vsize(v), &temp);
-	}
-
-	//Free GenFromTxt return array
-	for(size_t i=0; i<shape[0]*shape[1]; i++)
-		free(itemData[i]);
-	free(itemData);
-
-	return v;
+	fclose(item_data);
+	log_msg(" %d elements read from %s (%"SZ_FMT" bytes)\n", vsize(ITEMS), ITEMS_TXT, vmem(ITEMS));
+quit:
+	return err;
 }
 
 
-// Read Race Data from TXT
-vector *characRaceReadTxt(vector *v, const char *path)
+
+Error charac_read_data()
+{
+	Error err = NO_ERROR;
+	char line[STR_LINE_MAX];
+	int line_counter = 0;
+	
+	FILE *charac_data = fopen(CHARACS_TXT, "r");
+	if(!charac_data){
+		log_msg(" Error: could not open %s\n", CHARACS_TXT);
+		return FILE_ERROR;
+	}
+
+	while(fgets(line, STR_LINE_MAX-1, charac_data) != NULL)
+	{
+		line_counter++;
+		// Skip comments and empty lines
+		if(line[0] == '#' || line[0] == '\n'){
+			continue;
+		}
+		
+		Charac new;
+		/*
+		%[^;] reads everything until it finds a semicolon,
+		avoding the problems sscanf has when reading
+		strings with whitespaces.
+		*/
+		int read_num = sscanf(line, "%d;%[^;];%d;%d;%d;%d;%d\n", 
+						&new.id, new.name, &new.type,
+						&new.cons, &new.strn, &new.dext, &new.intl);
+
+		if(read_num != CHARAC_DATA_COLS){
+			err = FILE_ERROR;
+			log_msg(" Error reading %s (line %d)\n", CHARACS_TXT, line_counter);
+			goto quit;
+		}
+		// Remove whitespaces from left and right of string name
+		strstripw_lr(new.name);
+		// Add to global items vector
+		vinsert(CHARACS, vsize(CHARACS), &new);
+	}
+
+	fclose(charac_data);
+	log_msg(" %d elements read from %s (%"SZ_FMT" bytes)\n", vsize(CHARACS), CHARACS_TXT, vmem(CHARACS));
+quit:
+	return err;
+}
+
+// Read Character Data from TXT
+/*
+Error charac_read_data(vector *v, const char *path)
 {
 	
 	//Number of expected data columns in data, defined by relevant struct
 	size_t EXP_COLS = 6;
 	//Array stores number of rows and columns
 	size_t shape[2];
-	//Max size of each line in characters
-	size_t maxSize = 100;
 
 	//Get data from txt
-	char **raceData = GenFromTxt(path, &shape[0], maxSize, ';', '#');
+	char **raceData = GenFromTxt(path, &shape[0], STR_LINE_MAX, ';', '#');
 	if(!raceData){
-		fprintf(stderr, " Error: could not read races.txt\n");
-		exit(-1);
+		log_msg(" Error: could not read %s\n", CHARACS_TXT);
+		return FILE_ERROR;
 	}
 
 	//Check expected columns
 	if(shape[1] != EXP_COLS){
-		fprintf(stderr, " Error: wrong formatting in races.txt\n");
-		exit(-1);
+		log_msg(" Error: wrong formatting in %s\n", CHARACS_TXT);
+		return FILE_ERROR;
 	}
 
 	//Save txt data in item vector
 	for(size_t i=0; i<shape[0]; i++)
-	{	
-		//Slice name if too long
-		if(strlen(raceData[i*shape[1]]+1) > 99)
-			strslc(raceData[i*shape[1]+1], 0, 99);
+	{
 
 		//Retrieve in order:
-		// Name (string), playable (int), CON, STR, DEX, INT (ints)
+		// Name (string), type (int), CON, STR, DEX, INT (ints)
 		Charac temp;
 
+		//Get ID
+		if(!strtoint(&temp.id, raceData[i*shape[1]])){
+			log_msg(" Error: wrong formatting in %s\n", CHARACS_TXT);
+			return FILE_ERROR;
+		}
+
 		//Get name
-		strcpy(temp.name, strNoSpaces(raceData[i*shape[1]]));
+		strcpy(temp.name, strstripw(raceData[i*shape[1]+1]));
 
-		//Get playable flag
-		if(!strtoint(&temp.ID, raceData[i*shape[1] + 1])){
-			fprintf(stderr, " Error: wrong formatting in races.txt\n");
-			exit(-1);
+		int *data[] = {&temp.type, &temp.cons, &temp.strn, &temp.dext, &temp.intl};
+		for(int i=0; i<5; i++)
+		{
+			if(!strtoint(data[i], raceData[i*shape[1] + i + 2])){
+				log_msg(" Error: wrong formatting in %s\n", CHARACS_TXT);
+				return FILE_ERROR;
+			}
 		}
-
-		//Get CON
-		if(!strtoint(&temp.cons, raceData[i*shape[1] + 2])){
-			fprintf(stderr, " Error: wrong formatting in races.txt\n");
-			exit(-1);
-		}
-
-		//Get STR
-		if(!strtoint(&temp.strn, raceData[i*shape[1] + 3])){
-			fprintf(stderr, " Error: wrong formatting in races.txt\n");
-			exit(-1);
-		}
-
-		//Get DEX
-		if(!strtoint(&temp.dext, raceData[i*shape[1] + 4])){
-			fprintf(stderr, " Error: wrong formatting in races.txt\n");
-			exit(-1);
-		}
-
-		//Get INT
-		if(!strtoint(&temp.intl, raceData[i*shape[1] + 5])){
-			fprintf(stderr, " Error: wrong formatting in races.txt\n");
-			exit(-1);
-		}
-
 
 		//Save new item in vector
 		vinsert(v, vsize(v), &temp);
 	}
 
 	//Free GenFromTxt return array
-	for(size_t i=0; i<shape[0]*shape[1]; i++)
+	for(size_t i=0; i<shape[0]*shape[1]; i++){
 		free(raceData[i]);
+	}
 	free(raceData);
-
-	return v;
+	log_msg("Finished reading character data (%"SZ_FMT" bytes)\n", vmem(CHARACS));
+	return NO_ERROR;
 }
+*/
 
 
-// Read Character Data from TXT
-
-
-
-// Wrap fucntion to read all data
-GameData *readGameData(GameData *gd)
+// Wrap function to read all data
+Error game_read_data()
 {
-	
+	Error err = NO_ERROR;
+
 	// Items
-	itemReadTxt(gd->items, "data/items.txt");
-	// Races
-	characRaceReadTxt(gd->races, "data/races.txt");
+	err = item_read_data(ITEMS, ITEMS_TXT);
+	check_quit;
+
+	err = charac_read_data(CHARACS, CHARACS_TXT);
+	check_quit;
+
 	//Characs
 	//etc
-
-	return gd;
+	log_msg("Finished reading game data\n");
+quit:
+	return err;
 }
 
 
@@ -250,77 +301,66 @@ GameData *readGameData(GameData *gd)
 //		STRUCT INDEXING
 //______________________________________________
 
+
+// Characters
+
+/*
+Retrieve characters of given type
+in a vector of pointers.
+Note that in return vector, to access charac data, use:
+	Charac *race_i = *(Charac**)vat(race_list, i)
+*/
+vector *charac_search_type(int intype)
+{
+	vector *type_list = vnew(sizeof(Charac*));
+	for(size_t i=0; i<vsize(CHARACS); i++)
+	{
+		Charac *cur = vat(CHARACS, i);
+		if(cur->type == intype){
+			vinsert(type_list, 0, &cur); 
+		}
+	}
+	return type_list;
+}
+
+
+/*
+Retrieve races from character list.
+*/
+vector *charac_get_races()
+{
+	vector *race_list = charac_search_type(CHARAC_RACE);
+	return race_list;
+}
+
+
+
+
 //	ITEMS
 // Search by name, returns first instance,
 // and NULL otherwise
-Item *itemSearchName(vector *v, const char *lookupName)
+Item *item_search_name(vector *items, const char *lookup_name)
 {
-	for(size_t i=0; i<vsize(v); i++)
+	for(size_t i=0; i<vsize(items); i++)
 	{
-		Item *temp = vat(v, i);
-		if (strcmp(temp->name, lookupName) == 0)
+		Item *temp = vat(items, i);
+		if (strcmp(temp->name, lookup_name) == 0){
 			return temp;
+		}
 	}
 	return NULL;
 }
 
 // Search by ID, returns first instance,
 // and NULL otherwise
-Item *itemSearchID(vector *v, int lookupID)
+Item *item_search_id(vector *items, int lookup_id)
 {
-	for(size_t i=0; i<vsize(v); i++)
+	for(size_t i=0; i<vsize(items); i++)
 	{
-		Item *temp = vat(v, i);
-		if (temp->ID == lookupID)
+		Item *temp = vat(items, i);
+		if (temp->id == lookup_id){
 			return temp;
+		}
 	}
 	return NULL;
 }
-
-// Searches for items of given type,
-// stores them in vector and returns it.
-vector *itemGetType(vector *v, const char *lookupType)
-{
-	vector *t = vnew(sizeof(Item));
-	for(size_t i=0; i<vsize(v); i++)
-	{
-		Item *temp = vat(v, i);
-		if(strcmp(temp->type, lookupType)==0)
-			vinsert(t, vsize(t), temp);
-	}
-
-	if(vsize(t)==0)
-	{
-		vfree(t);
-		return NULL;
-	}
-	return t;
-}
-
-// CHARACS
-// Search by name, returns first instance,
-// and NULL otherwise
-Charac *characSearchName(vector *v, const char *lookupName)
-{
-	for(size_t i=0; i<vsize(v); i++)
-	{
-		Charac *temp = vat(v, i);
-		if (strcmp(temp->name, lookupName) == 0)
-			return temp;
-	}
-	return NULL;
-}
-
-// Search by ID, returns first instance,
-// and NULL otherwise
-Charac *CharacSearchID(vector *v, int lookupID)
-{
-	for(size_t i=0; i<vsize(v); i++)
-	{
-		Charac *temp = vat(v, i);
-		if (temp->ID == lookupID)
-			return temp;
-	}
-	return NULL;
-}
-

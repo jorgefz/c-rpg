@@ -1,11 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <math.h>
 #include <time.h>
 
 
-#include "utils.h"
+#include "include/utils.h"
+
 
 /*
 	===== Utility Function Definitions =====
@@ -133,22 +135,52 @@ strslc(char *s, size_t i, size_t j)
 
 
 /*
-Removes the spaces from a string
+Removes all whitespaces from a string
 */
 char *
-strNoSpaces(char *str)
+strstripw(char *str)
 {
-	char temp[strlen(str)];
+	char temp[strlen(str)+1];
 	int c = 0;
 	for(size_t i=0; i<strlen(str); i++)
 	{
-		if(str[i] == ' ')
+		if(isspace(str[i]) != 0){
 			continue;
+		}
 		temp[c] = str[i];
 		c++;
 	}
 	temp[c] = '\0';
 	strcpy(str, temp);
+	return str;
+}
+
+/*
+Removes the whitespaces from both sides of a string
+leaving interior whitespaces untouched.
+*/
+char *strstripw_lr(char *str)
+{
+	char buff[strlen(str)+1];
+	strcpy(buff, str);
+
+	// Remove left whitespaces
+	char *left = buff;
+	while( isspace(*left) != 0 )
+	{
+		left++;
+	}
+	if(*left == '\0'){
+		return str + strlen(str);
+	}
+	// Remove right whitespaces
+	char *right = buff + strlen(buff) - 1;
+	while(isspace(*right) != 0){
+		right--;
+	}
+	*(right+1) = '\0';
+
+	strcpy(str, left);
 	return str;
 }
 
@@ -208,7 +240,7 @@ strtoint(int *dest, const char *str)
 }
 
 int *
-strtointArr(int *dest, const char **str, size_t size)
+strtointArr(int *dest, char **str, size_t size)
 {
 	for(size_t i=0; i<size; i++){
 		int *ret = strtoint(&(dest[i]), str[i]);
@@ -254,13 +286,13 @@ strtofltArr(double *dest, const char **str, size_t size)
 
 
 size_t
-strtokn(char *str, const char *delim)
+strtokn(const char *str, char delim)
 {
 	if(!str)
 		return 0;
 	size_t n = 0;
 	for(size_t i=0; i<strlen(str); i++){
-		if(str[i] == *delim)
+		if(str[i] == delim)
 			n++;
 	}
 	return (n+1);
@@ -405,7 +437,7 @@ GenFromTxt(const char *path, size_t *shape, const size_t maxSize,
 	//expected number of tokens
 	size_t tokens[lineCount];
 	for(size_t i=0; i<lineCount; i++){
-		tokens[i] = strtokn(l[i], &delim);
+		tokens[i] = strtokn(l[i], delim);
 	}
 
 	//Compare all tokens to first one
@@ -421,7 +453,7 @@ GenFromTxt(const char *path, size_t *shape, const size_t maxSize,
 	size_t bytes = lineCount*initToken*sizeof(char*);
 	char **m = malloc(bytes);
 	if(!m){
-		fprintf(stderr, " Error: failed to allocate %Iu bytes\n", bytes);
+		fprintf(stderr, " Error: failed to allocate %"SZ_FMT" bytes\n", bytes);
 		return (NULL);
 	}
 
@@ -431,7 +463,7 @@ GenFromTxt(const char *path, size_t *shape, const size_t maxSize,
 		m[i] = malloc(maxSize*sizeof(char));
 		if(!m){
 			allocFail = (int)i;
-			fprintf(stderr, " Error: failed to allocate %Iu bytes\n", maxSize*sizeof(char));
+			fprintf(stderr, " Error: failed to allocate %"SZ_FMT" bytes\n", maxSize*sizeof(char));
 			break;
 		}
 	}
@@ -483,6 +515,8 @@ char *checkFile(const char* path)
 
 //			VECTOR
 
+
+
 /*
 Allocates new vector and returns pointer to it
 */
@@ -494,6 +528,7 @@ vector *vnew(size_t bytes)
 	v->d = NULL;
 	v->size = 0;
 	v->dtype = bytes;
+
 	return v;
 }
 
@@ -507,7 +542,6 @@ size_t vsize(vector *v)
 {
 	return v->size;
 }
-
 
 /*
 Returns the memory size of the
@@ -539,6 +573,19 @@ void *vat(vector *v, size_t i)
 		return NULL;
 	void *ptr = v->d + i*v->dtype;
 	return ptr;
+}
+
+
+/*
+Returns the total memory allocated for the vector
+*/
+size_t vmem(vector *v)
+{
+	if(!v)
+		return 0;
+	if(vsize(v)==0)
+		return sizeof(vector); 
+	return sizeof(vector)+vsize(v)*vdtype(v);
 }
 
 
@@ -653,4 +700,16 @@ void vfree(vector *v)
 {
 	free(v->d);
 	free(v);
+}
+
+
+/*
+Converts an array into a vector
+*/
+vector *vtovector(void *arr, size_t elem_num, size_t elem_size)
+{
+	vector *v = vnew(elem_size);
+	vresize(v, elem_num);
+	memcpy(vdata(v), arr, elem_num*elem_size);
+	return v;
 }

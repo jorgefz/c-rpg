@@ -1,0 +1,117 @@
+
+
+[NEW GAME INSTANCE] (8/11/2020, 23:24)
+ 15 elements read from ../data/items.txt (1824 bytes)
+ Error reading ../data/characs.txt (line 5)
+
+
+[NEW GAME INSTANCE] (8/11/2020, 23:26)
+ 15 elements read from ../data/items.txt (1824 bytes)
+ 8 elements read from ../data/characs.txt (2904 bytes)
+Finished reading game data
+Closing game...
+
+
+[NEW GAME INSTANCE] (8/11/2020, 23:28)
+ 15 elements read from ../data/items.txt (1824 bytes)
+ 8 elements read from ../data/characs.txt (2904 bytes)
+Finished reading game data
+Closing game...
+
+
+[NEW GAME INSTANCE] (8/11/2020, 23:28)
+ 15 elements read from ../data/items.txt (1824 bytes)
+ 8 elements read from ../data/characs.txt (2904 bytes)
+Finished reading game data
+Closing game...
+
+
+[NEW GAME INSTANCE] (8/11/2020, 23:29)
+ 15 elements read from ../data/items.txt (1824 bytes)
+ 8 elements read from ../data/characs.txt (2904 bytes)
+Finished reading game data
+Closing game...
+
+
+[NEW GAME INSTANCE] (8/11/2020, 23:31)
+ 15 elements read from ../data/items.txt (1824 bytes)
+ 8 elements read from ../data/characs.txt (2904 bytes)
+Finished reading game data
+Closing game...
+
+
+[NEW GAME INSTANCE] (8/11/2020, 23:31)
+ 15 elements read from ../data/items.txt (1824 bytes)
+ 8 elements read from ../data/characs.txt (2904 bytes)
+Finished reading game data
+Closing game...
+
+
+[NEW GAME INSTANCE] (8/11/2020, 23:33)
+ 15 elements read from ../data/items.txt (1824 bytes)
+ 8 elements read from ../data/characs.txt (2904 bytes)
+Finished reading game data
+Closing game...
+
+
+[NEW GAME INSTANCE] (8/11/2020, 23:33)
+ 15 elements read from ../data/items.txt (1824 bytes)
+ 8 elements read from ../data/characs.txt (2904 bytes)
+Finished reading game data
+Closing game...
+
+
+[NEW GAME INSTANCE] (8/11/2020, 23:34)
+ 15 elements read from ../data/items.txt (1824 bytes)
+ 8 elements read from ../data/characs.txt (2904 bytes)
+Finished reading game data
+Closing game...
+
+
+[NEW GAME INSTANCE] (8/11/2020, 23:35)
+ 15 elements read from ../data/items.txt (1824 bytes)
+ 8 elements read from ../data/characs.txt (2904 bytes)
+Finished reading game data
+Closing game...
+
+
+[NEW GAME INSTANCE] (8/11/2020, 23:36)
+ 15 elements read from ../data/items.txt (1824 bytes)
+ 8 elements read from ../data/characs.txt (2904 bytes)
+Finished reading game data
+Closing game...
+
+
+[NEW GAME INSTANCE] (8/11/2020, 23:36)
+ 15 elements read from ../data/items.txt (1824 bytes)
+ 8 elements read from ../data/characs.txt (2904 bytes)
+Finished reading game data
+Closing game...
+
+
+[NEW GAME INSTANCE] (8/11/2020, 23:38)
+ 15 elements read from ../data/items.txt (1824 bytes)
+ 8 elements read from ../data/characs.txt (2904 bytes)
+Finished reading game data
+Closing game...
+
+
+[NEW GAME INSTANCE] (8/11/2020, 23:38)
+ 15 elements read from ../data/items.txt (1824 bytes)
+ 8 elements read from ../data/characs.txt (2904 bytes)
+Finished reading game data
+Closing game...
+
+
+[NEW GAME INSTANCE] (8/11/2020, 23:40)
+ 15 elements read from ../data/items.txt (1824 bytes)
+ 8 elements read from ../data/characs.txt (2904 bytes)
+Finished reading game data
+Closing game...
+
+
+[NEW GAME INSTANCE] (8/11/2020, 23:41)
+ 15 elements read from ../data/items.txt (1824 bytes)
+ 8 elements read from ../data/characs.txt (2904 bytes)
+Finished reading game data
+Closing game...
