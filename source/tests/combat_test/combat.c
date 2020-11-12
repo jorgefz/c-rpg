@@ -72,7 +72,7 @@ size_t getTeamNum(CombatData *cd, size_t chNum, int isTeam)
 {
 	size_t teamNum = 0;
 	for(size_t i=0; i<chNum; i++){
-		if( cd[i].isAlly == isTeam )
+		if( cd[i].is_ally == isTeam )
 			teamNum++;
 	}
 	return teamNum;
@@ -85,14 +85,14 @@ Retrieves the members of a specified team
 	*teamNum 	Pointer that will store number of characters in team.
 	*cd 		CombatData array of all characters in battle.
 	chNum		number of characters in battle.
-	isAlly		team ID you seek
+	is_ally		team ID you seek
 */
 CombatData **getTeam(CombatData **dest, size_t *teamNum, 
 					CombatData *cd, size_t chNum, int isTeam)
 {
 	size_t counter = 0;
 	for(size_t i=0; i<chNum; i++){
-		if( cd[i].isAlly == isTeam ){
+		if( cd[i].is_ally == isTeam ){
 			dest[counter] = &cd[i];
 			counter++;
 		}
@@ -113,7 +113,7 @@ CombatData **getOppTeam(CombatData **dest, size_t *teamNum,
 	//Loop over characters
 	size_t counter = 0;
 	for(size_t i=0; i<chNum; i++){
-		if( cd[i].isAlly == isTeam ){
+		if( cd[i].is_ally == isTeam ){
 			dest[counter] = &cd[i];
 			counter++;
 		}
@@ -181,7 +181,6 @@ int combatAttack(CombatData *a, CombatData *b)
 	if(roll == 20){
 		damage = damage*2;
 		printf(" Critical Strike!\n");
-		
 	}
 	else if(roll == 1){
 		damage = 0;
@@ -191,8 +190,9 @@ int combatAttack(CombatData *a, CombatData *b)
 	// Compare with armor class
 	victim->HP -= damage;
 	// Avoids negative health
-	if(victim->HP < 0)
+	if(victim->HP < 0){
 		victim->HP = 0;
+	}
 
 	printf(" %s deals %d damage\n", attacker->name, damage);
 	getAChar();
@@ -214,7 +214,7 @@ CombatData *combatChooseTarget(CombatData *cd, size_t chNum)
 		size_t attackInd[chNum];
 		size_t count = 0;
 		for(size_t i=0; i<chNum; i++){
-			if (cd[i].isAlly == 1)
+			if (cd[i].is_ally == 1)
 				continue;
 			if (cd[i].ch->HP <= 0)
 				continue;
@@ -250,11 +250,11 @@ int combatFleeAttempt(CombatData *cd, size_t chNum, size_t ind)
 	// Get members of fleer's team
 	size_t fleeNum;
 	CombatData *fleeTeam[chNum];
-	CombatData **f = getTeam(&fleeTeam[0], &fleeNum, cd, chNum, cd[ind].isAlly);
+	CombatData **f = getTeam(&fleeTeam[0], &fleeNum, cd, chNum, cd[ind].is_ally);
 
 	size_t chaseNum;
 	CombatData *chaseTeam[chNum];
-	CombatData **c = getOppTeam(&chaseTeam[0], &chaseNum, cd, chNum, cd[ind].isAlly);
+	CombatData **c = getOppTeam(&chaseTeam[0], &chaseNum, cd, chNum, cd[ind].is_ally);
 
 	//Calculate fleeing chances of all team members, and get minimum 
 	int fleeVal[fleeNum];
@@ -269,7 +269,7 @@ int combatFleeAttempt(CombatData *cd, size_t chNum, size_t ind)
 	int chaseMax = intmax(&chaseVal[0], chaseNum);
 
 	if(fleeMin >= chaseMax){
-		if (cd[ind].isAlly == 1)
+		if (cd[ind].is_ally == 1)
 			printf(" Your team flees!\n");
 		else
 			printf(" The enemy team ran away! \n");
@@ -277,7 +277,7 @@ int combatFleeAttempt(CombatData *cd, size_t chNum, size_t ind)
 		return 1;
 	}
 	else{
-		if (cd[ind].isAlly == 1)
+		if (cd[ind].is_ally == 1)
 			printf(" You tried to run away, but the enemy caught up with you!\n");
 		else
 			printf(" The enemy tried to run away, but you chased them down!\n");
@@ -333,7 +333,7 @@ int combatEnemyTurn(CombatData *cd, size_t chNum, size_t ind)
 {
 	size_t allyNum;
 	CombatData *allies[chNum];
-	getOppTeam(&allies[0], &allyNum, cd, chNum, cd[ind].isAlly);
+	getOppTeam(&allies[0], &allyNum, cd, chNum, cd[ind].is_ally);
 
 	//Count non-dead targets
 	size_t alive = 0;
@@ -369,22 +369,22 @@ CombatData *combatSetup(CombatData *cd, Charac *ally, size_t allyNum,
 	// Populating temporary CombatData
 	for(size_t i=0; i<allyNum; i++){
 		temp[i].ch = &ally[i];
-		temp[i].isAlly = 1;
+		temp[i].is_ally = 1;
 		temp[i].init = rolld20() + getAbMod(ally[i].dext);
-		temp[i].indSort = i;
-		temp[i].isDead = 0;
-		temp[i].isStun = 0;
-		temp[i].counterTurnStun = 0;
+		temp[i].ind_sort = i;
+		temp[i].is_dead = 0;
+		temp[i].is_stun = 0;
+		temp[i].counter_turn_stun = 0;
 	}
 
 	for(size_t i=allyNum; i<chNum; i++){
 		temp[i].ch = &enemy[i-allyNum];
-		temp[i].isAlly = 0;
+		temp[i].is_ally = 0;
 		temp[i].init = rolld20() + getAbMod(enemy[i-allyNum].dext);
-		temp[i].indSort = i;
-		temp[i].isDead = 0;
-		temp[i].isStun = 0;
-		temp[i].counterTurnStun = 0;
+		temp[i].ind_sort = i;
+		temp[i].is_dead = 0;
+		temp[i].is_stun = 0;
+		temp[i].counter_turn_stun = 0;
 	}
 
 	//Sort indices
@@ -434,7 +434,7 @@ void runCombat(Charac *ally, size_t allyNum,
 			printf(" %s's turn...\n", cd[i].ch->name);
 			
 			//Ally turn
-			if (cd[i].isAlly == 1){
+			if (cd[i].is_ally == 1){
 				int result = combatPlayerTurn(&cd[0], chNum, i);
 				if(result == 1){
 					endCondition = 'n';
@@ -453,16 +453,16 @@ void runCombat(Charac *ally, size_t allyNum,
 			//Count dead in opposite team
 			int dead = 0;
 			for(size_t j=0; j<chNum; j++){
-				if(cd[j].isAlly != cd[i].isAlly && cd[j].ch->HP <= 0)
+				if(cd[j].is_ally != cd[i].is_ally && cd[j].ch->HP <= 0)
 					dead++;
 			}
 
 			// If everyone in a team is dead, then end the battle
-			if (cd[i].isAlly == 1 && dead == (int)enemyNum){
+			if (cd[i].is_ally == 1 && dead == (int)enemyNum){
 				endCondition = 'w';
 				break;
 			}
-			else if (cd[i].isAlly  == 0 && dead == (int)allyNum){
+			else if (cd[i].is_ally  == 0 && dead == (int)allyNum){
 				endCondition = 'd';
 				break;
 			}

@@ -54,7 +54,6 @@
 /*
 Expected number of data columns to find reading items data file.
 This corresponds to: ID, name, type, equip type, price, data, ...
-
 */
 #define ITEM_DATA_COLS 6
 
@@ -90,6 +89,7 @@ typedef enum ItemTypeEnum{
 	ITEM_AMMO,
 	ITEM_POTION,
 	ITEM_MISC,
+	ITEM_WEAP_RANGED,
 	ITEM_TYPE_NUM
 } ItemType;
 
@@ -127,7 +127,42 @@ typedef struct itemStruct{
 	int eqp_type;
 	/* Generic data (e.g. damage if weapon) */
 	int data;
+
+	// Substitute for data
+	int attrib[2];
 } Item;
+
+/*
+Enum for item attributes.
+Gives names to the nameless attributes for all item types.
+Get using item->attrib[ATTRIBUTE_NAME] or with the function.
+*/
+typedef enum ItemTypeAttribEnum
+{
+	WEAP_MELEE_DMG=0,
+	WEAP_MELEE_WEIGHT=1,
+
+	ARMOR_DEF=0,
+	ARMOR_WEIGHT=1,
+
+} ItemAttrib;
+
+/*
+Returns value of input item attribute
+*/
+int item_get_attribute(Item *item, int att)
+{
+	return item->attrib[att];
+}
+
+/*
+String names of the item attributes.
+Retrieve with attrib_names[ItemType][ItemAttrib]
+*/
+const char **attrib_names = {
+	{"Weapon melee damage", "Weapon melee weight"},
+	{"Armour defense rating", "Armour weight"}
+};
 
 
 // CHARACTERS

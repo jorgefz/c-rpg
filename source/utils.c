@@ -119,17 +119,21 @@ char *
 strslc(char *s, size_t i, size_t j)
 {
 	/* Input checks */
-	if( (i>j) || strlen(s)<(j-i+1) )
+	if( (i>j) || strlen(s)<(j-i+1) ){
 		return (NULL);
+	}
+
+	char buf[strlen(s+1)];
+	strcpy(buf, s);
 
 	/* Move pointer to left slice */
 	char *ptr;
-	ptr = s + i;
+	ptr = buf + i;
 
 	/* Null terminator after right slice */
 	ptr[j-i+1] = '\0';
 	
-	s = ptr;
+	strcpy(s, ptr);
 	return s;
 }
 
@@ -192,11 +196,13 @@ getstr(char *dest, const char *msg)
 	size_t max_read = (size_t) 1E5;
 	printf("%s", msg);
 	char *ptr = fgets(dest, max_read, stdin);
-	if(!ptr)
+	if(!ptr){
 		return (NULL);
+	}
 	// Removes newline character from end of string
-	if (strchr(dest, '\n'))
+	if (strchr(dest, '\n')){
 		strslc(dest, 0, strlen(dest)-2);
+	}
 	return dest;
 }
 

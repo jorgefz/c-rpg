@@ -310,7 +310,9 @@ void charac_free()
 	for(size_t i=0; i<vsize(CHARACS); i++)
 	{
 		Charac *cur = vat(CHARACS, i);
-		vfree(cur->inv);
+		if(cur->inv){
+			vfree(cur->inv);
+		}
 	}
 	vfree(CHARACS);
 }

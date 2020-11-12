@@ -13,33 +13,33 @@
 
 
 /*
-Stores temporal information about a character in combat
+Stores temporal combat-specific information about a character.
 */
 typedef struct combatDataStruct
 {
-	// Pointer to character in question
+	// Character affected
 	Charac *ch;
-	
-	// '1' if yes, '0' if enemy
-	int isAlly;
 
-	// Initiative value
+	// '1' if yes, '0' if enemy
+	int is_ally;
+
+	// Initiative
 	int init;
 
-	// Index of intiative sorted array
-	size_t indSort;
+	// Index in intiative sorted array
+	size_t ind_sort;
 	
 	// '1' yes, '0' no
-	int isDead;
+	int is_dead;
 	
 	// Check to skip turn if stunned, etc
-	int isStun;
+	int is_stun;
 
-	// Set to max number of turns stunned,
-	// subtract 1 each turn
-	int counterTurnStun;
+	// Checks if player has chosen defend option this turn.
+	int is_defending
 
-
+	// Number of turns until stun wears off.
+	int counter_turn_stun;
 
 } CombatData;
 
