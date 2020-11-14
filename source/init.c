@@ -22,6 +22,15 @@ const char *SAVE_DIR = "../data/saves/";
 // Location to which log game processes
 const char *LOGFILE = "../data/logs/log.txt";
 
+const char *item_attrib_names[][2] = {
+	{"Weapon melee damage", "Weapon melee weight"},
+	{"Armour defense rating", "Armour weight"},
+	{"Ammo attribute 1", "Ammo attribute 2"},
+	{"Potion strength", "Potion affects"},
+	{"Misc item attrib1", "Misc item attrib2"},
+	{"Weapon Ranged damage", "Weapon ranged attrib2"},
+};
+
 
 
 
@@ -31,7 +40,7 @@ const char *LOGFILE = "../data/logs/log.txt";
 void log_msg(char *msg, ...){
 	va_list args;
     va_start(args, msg);
-    int r = vfprintf(LOG, msg, args);
+    vfprintf(LOG, msg, args);
     fflush(LOG);
     va_end(args);
 }
@@ -53,7 +62,7 @@ Error log_init()
     time( &rawtime );
     timeinfo = localtime( &rawtime );
 
-	log_msg("\n\n[NEW GAME INSTANCE] (%d/%d/%d, %d:%d)\n",
+	log_msg("[NEW GAME INSTANCE] (%d/%d/%d, %d:%d)\n",
 						timeinfo->tm_mday,
 						timeinfo->tm_mon + 1,
 						timeinfo->tm_year + 1900,
@@ -95,7 +104,7 @@ quit:
 
 
 /* Frees every game object */
-void game_free()
+void game_free(int err)
 {
 	//Free vectors
 	vfree(ITEMS);
@@ -103,6 +112,7 @@ void game_free()
 	charac_free();
 
 	log_msg("Closing game...\n");
+	log_msg("Exited with error code %d\n", err);
 	fclose(LOG);
 }
 
@@ -138,10 +148,11 @@ Error item_read_data()
 		avoding the problems sscanf has when reading
 		strings with whitespaces.
 		*/
-		int read_num = sscanf(line, "%d;%[^;];%d;%d;%d;%d\n", 
+		int read_num = sscanf(line, "%d;%[^;];%d;%d;%d;%d;%d\n", 
 						&new.id, new.name,
 						&new.type, &new.eqp_type,
-						&new.price, &new.data);
+						&new.price,
+						&new.attrib[0], &new.attrib[1]);
 
 		if(read_num != ITEM_DATA_COLS){
 			err = FILE_ERROR;
@@ -181,8 +192,9 @@ Error charac_read_data()
 		if(line[0] == '#' || line[0] == '\n'){
 			continue;
 		}
-		
-		Charac new;
+		// Create character with default values
+		Charac new = {.inv = NULL, .magic = NULL,
+					.eqp_slots = {NULL}};
 		/*
 		%[^;] reads everything until it finds a semicolon,
 		avoding the problems sscanf has when reading
@@ -310,7 +322,7 @@ void charac_free()
 	for(size_t i=0; i<vsize(CHARACS); i++)
 	{
 		Charac *cur = vat(CHARACS, i);
-		if(cur->inv){
+		if(cur && cur->inv){
 			vfree(cur->inv);
 		}
 	}
@@ -368,4 +380,13 @@ Item *item_search_id(int lookup_id)
 		}
 	}
 	return NULL;
+}
+
+
+/*
+Retuns the string name fro an item attribute
+*/
+const char *item_get_attrib_name(int type, int attrib)
+{
+	return item_attrib_names[type][attrib];
 }

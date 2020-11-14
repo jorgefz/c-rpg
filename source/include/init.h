@@ -55,7 +55,7 @@
 Expected number of data columns to find reading items data file.
 This corresponds to: ID, name, type, equip type, price, data, ...
 */
-#define ITEM_DATA_COLS 6
+#define ITEM_DATA_COLS 7
 
 #define CHARAC_DATA_COLS 7
 
@@ -147,22 +147,14 @@ typedef enum ItemTypeAttribEnum
 
 } ItemAttrib;
 
-/*
-Returns value of input item attribute
-*/
-int item_get_attribute(Item *item, int att)
-{
-	return item->attrib[att];
-}
 
 /*
 String names of the item attributes.
-Retrieve with attrib_names[ItemType][ItemAttrib]
+attrib_names[ItemType*2 + ItemAttrib]
 */
-const char **attrib_names = {
-	{"Weapon melee damage", "Weapon melee weight"},
-	{"Armour defense rating", "Armour weight"}
-};
+extern const char *item_attrib_names[][2];
+
+
 
 
 // CHARACTERS
@@ -248,7 +240,7 @@ Error log_init();
 Error game_init();
 
 /* Frees every game object */
-void game_free();
+void game_free(int err);
 
 
 //		DATA READING
@@ -262,6 +254,7 @@ Error game_read_data();
 vector *item_search_type(int intype);
 Item *item_search_name(const char *lookup_name);
 Item *item_search_id(int lookup_id);
+const char *item_get_attrib_name(int type, int attrib);
 //	=== Charac
 vector *charac_search_type(int intype);
 vector *charac_get_races();

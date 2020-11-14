@@ -1,7 +1,6 @@
-
-
-[NEW GAME INSTANCE] (12/11/2020, 12:10)
- 15 elements read from ../data/items.txt (1824 bytes)
+[NEW GAME INSTANCE] (14/11/2020, 23:2)
+ 15 elements read from ../data/items.txt (1944 bytes)
  8 elements read from ../data/characs.txt (2840 bytes)
 Finished reading game data
 Closing game...
+Exited with error code 0

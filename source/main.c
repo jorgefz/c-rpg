@@ -26,6 +26,14 @@ int main()
 		printf("%s\n", cur->name);
 	}
 
+	printf("\n\n Item Attributes...\n");
+	for(size_t i=0; i<vsize(ITEMS); i++)
+	{
+		Item *cur = vat(ITEMS, i);
+		printf("   >%s: %d\n", item_get_attrib_name(cur->type, 0), cur->attrib[0]);
+		printf("   >%s: %d\n", item_get_attrib_name(cur->type, 1), cur->attrib[1]);
+	}
+
 	//print all characters
 	printf("\n\n --- Characters:\n");
 	for(size_t i=0; i<vsize(CHARACS); i++)
@@ -103,14 +111,9 @@ int main()
 	
 	getchar();
 
-
 	vfree(player.inv);
 
-
-
-
-	game_free();
-
 quit:
+	game_free(err);
 	return err;
 }

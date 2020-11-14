@@ -1,29 +1,29 @@
 # Item List
-# ID; Name; type; equip-type; price; data
+# ID; Name; type; equip-type; price; attrib1, attrib2
 
 #Weapons
-0001; Rags; 		1; 3; 0; 1
-0002; Sword; 		0; 0; 40; 7
-0003; Bow; 		0; 0; 30; 5
+0001; Rags; 		1; 3; 0; 1; 0
+0002; Sword; 		0; 0; 40; 7; 0
+0003; Bow; 		0; 0; 30; 5; 0
 
 #Armor
-0004; Leather Helmet; 	1; 2; 30; 3
-0005; Leather Cuirass; 	1; 3; 70; 7
-0006; Leather Gloves; 	1; 4; 15; 1
-0007; Leather Boots; 	1; 5; 35; 4
+0004; Leather Helmet; 	1; 2; 30; 3; 0
+0005; Leather Cuirass; 	1; 3; 70; 7; 0
+0006; Leather Gloves; 	1; 4; 15; 1; 0
+0007; Leather Boots; 	1; 5; 35; 4; 0
 
-0008; Iron Helmet; 	1; 2; 40; 5
-0009; Iron Plate; 	1; 3; 100; 10
-0010; Iron Gauntlets; 	1; 4; 25; 3
-0011; Iron Boots; 	1; 5; 45; 6
+0008; Iron Helmet; 	1; 2; 40; 5; 0
+0009; Iron Plate; 	1; 3; 100; 10; 0
+0010; Iron Gauntlets; 	1; 4; 25; 3; 0
+0011; Iron Boots; 	1; 5; 45; 6; 0
 
 #Ammo
-0012; Iron Arrow; 	3; 1; 2; 4
+0012; Iron Arrow; 	3; 1; 2; 4; 0
 
 #Food
-0013; Apple; 		2; 9; 0; 0
-0014; Bread; 		2; 9; 0; 0
+0013; Apple; 		2; 9; 0; 0; 0
+0014; Bread; 		2; 9; 0; 0; 0
 
 #Potions
-0015; Health Potion; 	4; 9; 7; 8
+0015; Health Potion; 	4; 9; 7; 8; 0
 
